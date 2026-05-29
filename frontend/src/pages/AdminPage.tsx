@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Team, Keyword, AuctionState } from '../types';
-import api, { teamAPI, keywordAPI, auctionAPI, connectWebSocket } from '../utils/api';
+import { Team, Keyword } from '../types';
+import api, { teamAPI, keywordAPI, connectWebSocket } from '../utils/api';
 import './AdminPage.css';
 
 interface AdminPageProps {
@@ -12,7 +12,6 @@ interface AdminPageProps {
 const AdminPage: React.FC<AdminPageProps> = ({ onBack, onStartAuctionMode, onOpenSettings }) => {
     const [teams, setTeams] = useState<Team[]>([]);
     const [keywords, setKeywords] = useState<Keyword[]>([]);
-    const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
     const [activeTab, setActiveTab] = useState<'teams' | 'keywords' | 'create'>('teams');
 
     // 새 키워드 생성 폼
@@ -53,19 +52,18 @@ const AdminPage: React.FC<AdminPageProps> = ({ onBack, onStartAuctionMode, onOpe
 
     const loadAllData = async () => {
         try {
-            const [teamsData, keywordsData, stateData] = await Promise.all([
+            const [teamsData, keywordsData] = await Promise.all([
                 teamAPI.getAll(),
                 keywordAPI.getAll(),
-                auctionAPI.getState()
             ]);
             setTeams(teamsData);
             setKeywords(keywordsData);
-            setAuctionState(stateData);
         } catch (err) {
             console.error('데이터 로드 실패:', err);
         }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleDeleteKeyword = async (keywordId: number) => {
         if (!window.confirm('정말로 이 키워드를 삭제하시겠습니까?')) {
             return;

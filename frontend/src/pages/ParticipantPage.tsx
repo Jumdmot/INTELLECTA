@@ -252,6 +252,7 @@ const ParticipantPage: React.FC<ParticipantPageProps> = ({ loginData, onLogout }
             ws.close();
             clearInterval(interval);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loginData.team_id, loginData.team_name]);
 
     useEffect(() => {

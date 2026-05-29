@@ -15,6 +15,7 @@ type View = 'home' | 'admin-login' | 'admin-dashboard' | 'auction-control' | 'se
 function App() {
   const [view, setView] = useState<View>('home');
   const [loginData, setLoginData] = useState<LoginResponse | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [adminAuth, setAdminAuth] = useState<any>(null);
 
   // 컴포넌트 마운트시 localStorage에서 로그인 정보 복원
