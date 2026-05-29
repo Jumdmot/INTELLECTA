@@ -1,0 +1,366 @@
+/* =============================================
+   Auction Control Page
+   ============================================= */
+.auction-control-page {
+  padding: 1.5rem;
+  width: 100%;
+  color: #f1f5f9;
+  height: calc(100vh - 80px);
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(13, 20, 39, 0.8);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-left: 3px solid #10b981;
+  padding: 1.4rem 2rem;
+  border-radius: 14px;
+  margin-bottom: 1.2rem;
+}
+
+.control-header h1 {
+  margin: 0 0 0.2rem 0;
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: rgba(241,245,249,0.5);
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* Gambling control strip */
+.gambling-control-section {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139,92,246,0.25);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.btn-start-gambling {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  padding: 0.8rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 3px 15px rgba(139,92,246,0.35);
+  white-space: nowrap;
+}
+
+.btn-start-gambling:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(139,92,246,0.5);
+}
+
+.btn-start-gambling:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.gambling-status {
+  color: rgba(241,245,249,0.6);
+  font-size: 0.88rem;
+  animation: blink-text 2s ease-in-out infinite;
+}
+
+@keyframes blink-text {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* Main content split */
+.control-content {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1.2rem;
+  height: calc(100vh - 270px);
+}
+
+/* Left panel */
+.keyword-selection-panel {
+  background: rgba(13,20,39,0.7);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 1.4rem;
+  border-radius: 14px;
+  overflow-y: auto;
+}
+
+.keyword-selection-panel h2 {
+  margin: 0 0 1.1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(241,245,249,0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.keyword-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.8rem;
+}
+
+.keyword-select-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 1.1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.keyword-select-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(245,158,11,0.2);
+  transform: translateY(-2px);
+}
+
+.keyword-select-card.selected {
+  border-color: #f59e0b;
+  background: rgba(245,158,11,0.08);
+  box-shadow: 0 0 20px rgba(245,158,11,0.15);
+}
+
+.keyword-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: 700;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.keyword-info { flex: 1; min-width: 0; }
+.keyword-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem; }
+.keyword-min-bid { color: rgba(241,245,249,0.5); font-size: 0.82rem; }
+
+.selected-indicator {
+  font-size: 1.5rem;
+  color: #f59e0b;
+  animation: pulse-icon 1s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(1.15); }
+}
+
+/* Right panel */
+.auction-start-panel {
+  background: rgba(13,20,39,0.7);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 1.4rem;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.auction-start-panel h2 {
+  margin: 0 0 1.1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(241,245,249,0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.selected-keyword-display {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.25);
+  padding: 1.8rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.large-badge {
+  display: inline-block;
+  padding: 0.6rem 1.3rem;
+  border-radius: 16px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.8rem;
+}
+
+.selected-keyword-display h3 {
+  font-size: 2.2rem;
+  letter-spacing: -0.02em;
+  margin: 0.8rem 0;
+}
+
+.min-bid-info {
+  font-size: 1.1rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+/* Teams ready status */
+.teams-ready-status {
+  flex: 1;
+  margin-bottom: 1.2rem;
+  overflow-y: auto;
+}
+
+.teams-ready-status h3 {
+  margin: 0 0 0.8rem 0;
+  font-size: 0.9rem;
+  color: rgba(241,245,249,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.teams-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.team-status-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 0.7rem;
+  border-radius: 9px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.team-status-card:hover {
+  border-color: rgba(245,158,11,0.2);
+  background: rgba(255,255,255,0.06);
+}
+
+.team-status-name { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.2rem; }
+.team-status-coins { color: #f59e0b; font-size: 0.82rem; font-weight: 600; }
+
+/* Start button */
+.btn-start-auction {
+  width: 100%;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.35);
+  animation: glow-green 2.5s ease-in-out infinite;
+}
+
+@keyframes glow-green {
+  0%, 100% { box-shadow: 0 4px 20px rgba(16,185,129,0.35); }
+  50%       { box-shadow: 0 4px 35px rgba(16,185,129,0.6);  }
+}
+
+.btn-start-auction:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(16,185,129,0.6);
+  animation: none;
+}
+
+.btn-start-auction:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: none;
+  transform: none;
+}
+
+/* Auction action buttons (낙찰 / 유찰) */
+.auction-action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.btn-end-auction {
+  padding: 1rem;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 3px 12px rgba(239,68,68,0.35);
+}
+.btn-end-auction:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.55); }
+
+.btn-pass-auction {
+  padding: 1rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(241,245,249,0.8);
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-pass-auction:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+}
+
+/* Empty state */
+.no-selection-message {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: rgba(241,245,249,0.25);
+}
+
+.empty-icon {
+  font-size: 4.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.no-selection-message p {
+  font-size: 1.1rem;
+  color: rgba(241,245,249,0.35);
+}
+
+/* Back button in control header */
+.btn-back {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(241,245,249,0.7);
+  padding: 0.7rem 1.3rem;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-back:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; transform: translateY(-1px); }
+
+@media (max-width: 1200px) {
+  .control-content { grid-template-columns: 1fr; height: auto; }
+  .keyword-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+}

@@ -1,0 +1,659 @@
+/* =============================================
+   Auction Screen (Large display / popup window)
+   ============================================= */
+.auction-screen-page {
+  width: 100%;
+  height: 100vh;
+  background: #05080f;
+  overflow: hidden;
+}
+
+/* Subtle noise overlay */
+.auction-screen-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(245,158,11,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---- Waiting screen ---- */
+.waiting-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  color: #f1f5f9;
+  position: relative;
+  z-index: 1;
+}
+
+.waiting-screen .waiting-icon {
+  font-size: 7rem;
+  margin-bottom: 1.8rem;
+  animation: spin 2.5s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.waiting-screen h1 {
+  font-size: 3.5rem;
+  margin-bottom: 0.8rem;
+  color: rgba(241,245,249,0.85);
+  letter-spacing: -0.02em;
+}
+
+.waiting-screen p {
+  font-size: 1.5rem;
+  color: rgba(241,245,249,0.4);
+}
+
+/* ---- Main auction layout ---- */
+.screen-layout {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* Left panel — keyword showcase */
+.keyword-display-panel {
+  background: rgba(13,20,39,0.6);
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border-right: 1px solid rgba(245,158,11,0.2);
+}
+
+.auction-status-badge {
+  position: absolute;
+  top: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ef4444;
+  color: white;
+  padding: 0.6rem 2rem;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 0 25px rgba(239,68,68,0.5);
+  animation: statusBlink 2s infinite;
+  white-space: nowrap;
+}
+
+@keyframes statusBlink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(239,68,68,0.5); }
+  50%       { opacity: 0.8; box-shadow: 0 0 35px rgba(239,68,68,0.8); }
+}
+
+.keyword-showcase {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.showcase-badge {
+  display: inline-block;
+  padding: 0.8rem 2.5rem;
+  border-radius: 30px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+}
+
+.showcase-name {
+  font-size: 5.5rem;
+  color: #f1f5f9;
+  margin: 1.5rem 0;
+  letter-spacing: -0.03em;
+  text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  animation: floatKeyword 3.5s ease-in-out infinite;
+}
+
+@keyframes floatKeyword {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+.showcase-minbid {
+  font-size: 1.6rem;
+  color: rgba(241,245,249,0.6);
+}
+
+/* Current highest bidder display */
+.current-winner {
+  background: rgba(245,158,11,0.08);
+  border: 2px solid rgba(245,158,11,0.45);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(245,158,11,0.15);
+  animation: winnerGlow 2s ease-in-out infinite;
+  min-width: 320px;
+}
+
+@keyframes winnerGlow {
+  0%, 100% { box-shadow: 0 8px 30px rgba(245,158,11,0.15); }
+  50%       { box-shadow: 0 8px 50px rgba(245,158,11,0.35); }
+}
+
+.winner-label {
+  font-size: 1.3rem;
+  color: #f59e0b;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.winner-team {
+  font-size: 2.8rem;
+  color: #f1f5f9;
+  font-weight: 700;
+  margin: 0.8rem 0;
+  letter-spacing: -0.01em;
+}
+
+.winner-amount {
+  font-size: 2.2rem;
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+/* Right panel — bids list */
+.bids-display-panel {
+  background: rgba(5,8,15,0.8);
+  padding: 2.5rem 2rem;
+  overflow-y: auto;
+  border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+.bids-display-panel h2 {
+  color: rgba(241,245,249,0.7);
+  font-size: 1.4rem;
+  margin: 0 0 1.8rem 0;
+  text-align: center;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bids-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.no-bids-message {
+  text-align: center;
+  color: rgba(241,245,249,0.25);
+  padding: 5rem 0;
+}
+
+.waiting-icon {
+  font-size: 4.5rem;
+  margin-bottom: 0.8rem;
+  animation: spin 2.5s linear infinite;
+  display: inline-block;
+}
+
+.no-bids-message p { font-size: 1.3rem; }
+
+.bid-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 1.3rem 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  transition: all 0.3s;
+  animation: slideInBid 0.4s ease-out;
+}
+
+@keyframes slideInBid {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+.bid-card.highest {
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.45);
+  box-shadow: 0 4px 25px rgba(245,158,11,0.2);
+  transform: scale(1.03);
+}
+
+.bid-rank {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: rgba(241,245,249,0.6);
+  min-width: 55px;
+  text-align: center;
+}
+
+.bid-card.highest .bid-rank {
+  font-size: 2.5rem;
+  animation: rankBounce 1s ease-in-out infinite;
+}
+
+@keyframes rankBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.bid-info { flex: 1; }
+
+.bid-team {
+  font-size: 1.7rem;
+  color: #f1f5f9;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.bid-card.highest .bid-team { color: #fbbf24; font-size: 1.9rem; }
+
+.bid-time { font-size: 0.9rem; color: rgba(241,245,249,0.35); }
+
+.bid-amount-display {
+  font-size: 1.8rem;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.bid-card.highest .bid-amount-display {
+  font-size: 2.2rem;
+  color: #f59e0b;
+}
+
+/* Scrollbar */
+.bids-display-panel::-webkit-scrollbar { width: 5px; }
+.bids-display-panel::-webkit-scrollbar-track { background: transparent; }
+.bids-display-panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 5px;
+}
+
+/* ---- Winner celebration ---- */
+.winner-celebration {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #05080f;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.confetti-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  border-radius: 2px;
+  animation: confettiFall 3.5s linear infinite;
+}
+
+@keyframes confettiFall {
+  to { transform: translateY(105vh) rotate(420deg); }
+}
+
+.winner-content {
+  text-align: center;
+  z-index: 10;
+  animation: celebZoom 0.75s ease-out;
+}
+
+@keyframes celebZoom {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+
+.winner-trophy {
+  font-size: 10rem;
+  margin-bottom: 1.5rem;
+  animation: trophyBounce 1.2s ease-in-out infinite;
+}
+
+@keyframes trophyBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%       { transform: translateY(-18px) rotate(-5deg); }
+  75%       { transform: translateY(-18px) rotate(5deg); }
+}
+
+.winner-title {
+  font-size: 5rem;
+  color: #f59e0b;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 40px rgba(245,158,11,0.8);
+  animation: winnerGlowText 2s ease-in-out infinite;
+}
+
+@keyframes winnerGlowText {
+  0%, 100% { text-shadow: 0 0 30px rgba(245,158,11,0.7); }
+  50%       { text-shadow: 0 0 70px rgba(245,158,11,1);   }
+}
+
+.winner-team-name {
+  font-size: 4rem;
+  color: #f1f5f9;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.winner-keyword {
+  font-size: 2.8rem;
+  color: rgba(241,245,249,0.8);
+  margin-bottom: 1rem;
+}
+
+.winner-amount {
+  font-size: 3.2rem;
+  color: #10b981;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.winner-message {
+  font-size: 2.2rem;
+  color: rgba(241,245,249,0.7);
+  animation: msgPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes msgPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.04); }
+}
+
+/* ---- Gambling screens ---- */
+.gambling-countdown-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.gambling-title {
+  font-size: 4.5rem;
+  margin-bottom: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #f59e0b, #ef4444, #8b5cf6, #f59e0b);
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+.countdown-display { margin-bottom: 2.5rem; }
+
+.countdown-number {
+  font-size: 14rem;
+  font-weight: 700;
+  color: #f59e0b;
+  text-shadow: 0 0 60px rgba(245,158,11,0.7);
+  animation: countdownPulse 1s ease-in-out infinite;
+  line-height: 1;
+}
+
+@keyframes countdownPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
+.countdown-display p {
+  font-size: 2rem;
+  margin-top: 0.8rem;
+  color: rgba(241,245,249,0.7);
+}
+
+.participant-info { margin-bottom: 2rem; }
+
+.participant-count {
+  font-size: 1.8rem;
+  color: #10b981;
+  font-weight: 700;
+  background: rgba(16,185,129,0.1);
+  padding: 0.8rem 2rem;
+  border-radius: 14px;
+  border: 1px solid rgba(16,185,129,0.35);
+  display: inline-block;
+}
+
+.gambling-instructions {
+  font-size: 1.8rem;
+  color: rgba(241,245,249,0.75);
+  line-height: 1.8;
+}
+
+.gambling-instructions p { margin: 0.8rem 0; }
+
+/* Coin flip screen */
+.coin-flip-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+.flip-title {
+  font-size: 4.5rem;
+  margin-bottom: 4rem;
+  color: #f59e0b;
+  text-shadow: 0 0 35px rgba(245,158,11,0.7);
+  font-weight: 700;
+}
+
+.coin-container {
+  perspective: 1500px;
+  margin-bottom: 3rem;
+}
+
+.coin-3d {
+  width: 280px;
+  height: 280px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: coin-flip-3d 0.55s linear infinite;
+}
+
+@keyframes coin-flip-3d {
+  0%   { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(1080deg) rotateY(720deg); }
+}
+
+.coin-side {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10rem;
+  backface-visibility: hidden;
+  background: radial-gradient(circle at 30% 30%, #ffed4e, #f59e0b, #c9a829);
+  box-shadow:
+    0 0 50px rgba(245,158,11,0.6),
+    inset 0 5px 18px rgba(255,255,255,0.35),
+    inset 0 -5px 18px rgba(0,0,0,0.25);
+  border: 5px solid #ffed4e;
+}
+
+.coin-side.front { transform: rotateY(0deg) translateZ(5px); }
+.coin-side.back  { transform: rotateY(180deg) translateZ(5px); }
+
+.flip-message {
+  font-size: 2.2rem;
+  color: rgba(241,245,249,0.8);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Gambling result screen */
+.gambling-result-screen {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.gambling-result-title {
+  font-size: 4.5rem;
+  margin-bottom: 2.5rem;
+  color: #f59e0b;
+  font-weight: 700;
+  text-shadow: 0 0 40px rgba(245,158,11,0.8);
+}
+
+.coin-result-display {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.coin-final {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle at 30% 30%, #ffed4e, #f59e0b, #c9a829);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11rem;
+  margin: 0 auto 1.8rem auto;
+  box-shadow: 0 20px 60px rgba(245,158,11,0.55), inset 0 4px 14px rgba(255,255,255,0.3);
+  animation: resultBounce 1.1s ease-out;
+  border: 5px solid #ffed4e;
+}
+
+@keyframes resultBounce {
+  0%   { transform: scale(0) rotate(0deg); }
+  50%  { transform: scale(1.18) rotate(180deg); }
+  100% { transform: scale(1) rotate(360deg); }
+}
+
+.coin-result-display h2 {
+  font-size: 3.5rem;
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.gambling-results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 1300px;
+}
+
+.winners-section,
+.losers-section {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 2rem;
+  max-height: 550px;
+  overflow-y: auto;
+}
+
+.winners-section { border: 1px solid rgba(16,185,129,0.4); }
+.losers-section  { border: 1px solid rgba(239,68,68,0.4); }
+
+.winners-section h3 {
+  color: #10b981;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.losers-section h3 {
+  color: #ef4444;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 0.8rem;
+  border-radius: 12px;
+  font-size: 1.6rem;
+}
+
+.result-item.winner {
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+}
+
+.result-item.loser {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.result-item .team-name { font-weight: 700; }
+.result-item.winner .amount { color: #10b981; font-weight: 700; }
+.result-item.loser  .amount { color: #ef4444; font-weight: 700; }
+
+.no-participants {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(241,245,249,0.35);
+  font-size: 1.3rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .screen-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 55% 45%;
+  }
+
+  .keyword-display-panel { border-right: none; border-bottom: 1px solid rgba(245,158,11,0.2); }
+  .showcase-name { font-size: 3.5rem; }
+  .winner-team { font-size: 2.2rem; }
+  .gambling-results-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}

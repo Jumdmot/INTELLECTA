@@ -1,0 +1,18 @@
+/* index.css — thin global overrides (App.css owns design tokens) */
+
+body {
+  background: #080c18;
+  color: #f1f5f9;
+}
+
+/* Typography resets */
+h1, h2, h3, h4, h5, h6 { font-weight: 700; }
+
+/* Prevent input / textarea zoom on iOS */
+input, select, textarea {
+  font-size: 16px;
+}
+
+@media (min-width: 769px) {
+  input, select, textarea { font-size: inherit; }
+}
