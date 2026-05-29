@@ -1,14 +1,12 @@
 import axios from 'axios';
 import { Team, Keyword, AuctionState, LoginResponse, User } from '../types';
 
-// API 베이스 URL - 현재 호스트에 맞게 자동 설정
+// API 베이스 URL - 프로덕션에서는 같은 서버(상대경로), 로컬에서는 localhost:8000
 const getApiBaseUrl = () => {
-    // 프로덕션 환경에서는 현재 호스트의 IP 사용
     if (window.location.hostname !== 'localhost') {
-        return `http://${window.location.hostname}:8000`;
+        return ''; // FastAPI가 프론트엔드를 함께 서빙하므로 상대경로 사용
     }
-    // 로컬 개발 환경
-    return 'https://intellecta-backend-v2.onrender.com/';
+    return 'http://localhost:8000';
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -181,10 +179,10 @@ export const connectWebSocket = (
     onMessage: (message: any) => void,
     onError?: (error: Event) => void
 ): WebSocket => {
-    // WebSocket URL도 동적으로 설정
+    // WebSocket URL: 프로덕션(HTTPS)에서는 wss://, 포트 불필요
     const wsUrl = window.location.hostname !== 'localhost'
-        ? `ws://${window.location.hostname}:8000/ws`
-        : 'ws://intellecta-backend-v2.onrender.com//ws';
+        ? `wss://${window.location.hostname}/ws`
+        : 'ws://localhost:8000/ws';
 
     console.log('🔌 WebSocket URL:', wsUrl);
 

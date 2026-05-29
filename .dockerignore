@@ -1,0 +1,8 @@
+backend/venv
+backend/__pycache__
+backend/auction.db
+backend/*.pyc
+frontend/node_modules
+frontend/build
+.git
+.gitignore

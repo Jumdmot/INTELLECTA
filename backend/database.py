@@ -1,9 +1,11 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# 개발 단계에서는 SQLite 사용 (파일 기반 DB)
-SQLALCHEMY_DATABASE_URL = "sqlite:///./auction.db"
+# DATA_DIR 환경변수로 DB 경로 설정 (Railway 볼륨: /data, 로컬: 현재 디렉토리)
+DATA_DIR = os.environ.get("DATA_DIR", ".")
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATA_DIR}/auction.db"
 
 # 데이터베이스 엔진 생성
 engine = create_engine(

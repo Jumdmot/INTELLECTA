@@ -1,5 +1,8 @@
+import os
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Dict
 import json
@@ -977,6 +980,17 @@ async def websocket_endpoint(websocket: WebSocket):
             "type": "user_left",
             "connections": len(manager.active_connections)
         })
+
+# React 빌드 정적 파일 서빙 (프로덕션 환경에서 Dockerfile이 /app/static에 빌드 결과물 복사)
+STATIC_DIR = "static"
+if os.path.exists(STATIC_DIR):
+    # React 빌드의 /static/ 하위 JS/CSS 파일 서빙
+    if os.path.exists(f"{STATIC_DIR}/static"):
+        app.mount("/static", StaticFiles(directory=f"{STATIC_DIR}/static"), name="react-assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(_full_path: str = ""):
+        return FileResponse(f"{STATIC_DIR}/index.html")
 
 if __name__ == "__main__":
     import uvicorn
