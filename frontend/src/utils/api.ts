@@ -1,10 +1,16 @@
 import axios from 'axios';
 import { Team, Keyword, AuctionState, LoginResponse, User } from '../types';
 
-// API 베이스 URL - 프로덕션에서는 같은 서버(상대경로), 로컬에서는 localhost:8000
+// API 베이스 URL
+// - REACT_APP_API_URL 설정 시: Vercel+Render 배포 (백엔드 URL 직접 지정)
+// - 미설정 + non-localhost: Railway 배포 (같은 서버, 상대경로)
+// - localhost: 로컬 개발
 const getApiBaseUrl = () => {
+    if (process.env.REACT_APP_API_URL) {
+        return process.env.REACT_APP_API_URL;
+    }
     if (window.location.hostname !== 'localhost') {
-        return ''; // FastAPI가 프론트엔드를 함께 서빙하므로 상대경로 사용
+        return '';
     }
     return 'http://localhost:8000';
 };
@@ -179,10 +185,15 @@ export const connectWebSocket = (
     onMessage: (message: any) => void,
     onError?: (error: Event) => void
 ): WebSocket => {
-    // WebSocket URL: 프로덕션(HTTPS)에서는 wss://, 포트 불필요
-    const wsUrl = window.location.hostname !== 'localhost'
-        ? `wss://${window.location.hostname}/ws`
-        : 'ws://localhost:8000/ws';
+    // WebSocket URL
+    // - REACT_APP_API_URL 설정 시: Render URL을 wss://로 변환
+    // - 미설정 + non-localhost: Railway (같은 호스트)
+    // - localhost: 로컬 개발
+    const wsUrl = process.env.REACT_APP_API_URL
+        ? process.env.REACT_APP_API_URL.replace('https://', 'wss://').replace('http://', 'ws://') + '/ws'
+        : window.location.hostname !== 'localhost'
+            ? `wss://${window.location.hostname}/ws`
+            : 'ws://localhost:8000/ws';
 
     console.log('🔌 WebSocket URL:', wsUrl);
 
