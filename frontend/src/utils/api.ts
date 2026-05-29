@@ -8,7 +8,7 @@ const getApiBaseUrl = () => {
         return `http://${window.location.hostname}:8000`;
     }
     // 로컬 개발 환경
-    return 'http://localhost:8000';
+    return 'https://intellecta-backend-v2.onrender.com/';
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -184,7 +184,7 @@ export const connectWebSocket = (
     // WebSocket URL도 동적으로 설정
     const wsUrl = window.location.hostname !== 'localhost'
         ? `ws://${window.location.hostname}:8000/ws`
-        : 'ws://localhost:8000/ws';
+        : 'ws://intellecta-backend-v2.onrender.com//ws';
 
     console.log('🔌 WebSocket URL:', wsUrl);
 
