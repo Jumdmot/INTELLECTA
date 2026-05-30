@@ -12,9 +12,11 @@ from datetime import datetime
 
 from database import get_db, engine
 from models import Base, Team, Keyword, Bid, AuctionState, User
+from init_db import init_database
 
-# 데이터베이스 테이블 생성
+# 데이터베이스 테이블 생성 및 초기 데이터 삽입 (데이터가 없을 때만)
 Base.metadata.create_all(bind=engine)
+init_database()
 
 # FastAPI 앱 생성
 app = FastAPI(title="실시간 경매 시스템")
