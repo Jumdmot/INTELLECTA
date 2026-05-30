@@ -189,8 +189,9 @@ export const connectWebSocket = (
     // - REACT_APP_API_URL 설정 시: Render URL을 wss://로 변환
     // - 미설정 + non-localhost: Railway (같은 호스트)
     // - localhost: 로컬 개발
-    const wsUrl = process.env.REACT_APP_API_URL
-        ? process.env.REACT_APP_API_URL.replace('https://', 'wss://').replace('http://', 'ws://') + '/ws'
+    const backendUrl = (process.env.REACT_APP_API_URL || '').replace(/\/$/, ''); // 끝 슬래시 제거
+    const wsUrl = backendUrl
+        ? backendUrl.replace('https://', 'wss://').replace('http://', 'ws://') + '/ws'
         : window.location.hostname !== 'localhost'
             ? `wss://${window.location.hostname}/ws`
             : 'ws://localhost:8000/ws';
