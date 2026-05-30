@@ -54,6 +54,9 @@ const ParticipantPage: React.FC<ParticipantPageProps> = ({ loginData, onLogout }
     } | null>(null);
     const [showCoinFlip, setShowCoinFlip] = useState(false);
 
+    // 경매 이전 상태를 추적하는 ref (폴링으로 시작/종료 전환 감지용)
+    const prevAuctionActiveRef = React.useRef(false);
+
     // 베팅 정보를 저장할 ref
     const betInfoRef = React.useRef<{
         choice: 'heads' | 'tails' | null;
@@ -246,7 +249,7 @@ const ParticipantPage: React.FC<ParticipantPageProps> = ({ loginData, onLogout }
             loadTeamData();
             loadKeywords();
             checkAuctionStatus();
-        }, 5000);
+        }, 3000);
 
         return () => {
             ws.close();
@@ -285,14 +288,24 @@ const ParticipantPage: React.FC<ParticipantPageProps> = ({ loginData, onLogout }
     const checkAuctionStatus = async () => {
         try {
             const state = await auctionAPI.getState();
+            const wasActive = prevAuctionActiveRef.current;
+            prevAuctionActiveRef.current = state.is_active;
             setIsAuctionActive(state.is_active);
 
             if (state.is_active && state.current_keyword_id) {
                 const allKeywords = await keywordAPI.getAll();
-                const currentKw = allKeywords.find(k => k.id === state.current_keyword_id);
-                setCurrentAuctionKeyword(currentKw || null);
+                const currentKw = allKeywords.find(k => k.id === state.current_keyword_id) || null;
+                setCurrentAuctionKeyword(currentKw);
+                if (!wasActive) {
+                    setActiveTab('auction');
+                    showMessage('info', `🎯 경매 시작! ${currentKw?.name} 키워드에 입찰하세요!`);
+                }
             } else {
                 setCurrentAuctionKeyword(null);
+                if (wasActive) {
+                    showMessage('info', '경매가 종료되었습니다. 코인을 확인하세요!');
+                    loadTeamData();
+                }
             }
         } catch (err) {
             console.error('경매 상태 확인 실패:', err);
