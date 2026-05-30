@@ -1,8 +1,8 @@
 import os
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Dict
 import json
@@ -30,38 +30,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# WebSocket 연결 관리자
-class ConnectionManager:
-    """
-    WebSocket 연결을 관리하는 클래스
-    여러 클라이언트의 연결을 저장하고 브로드캐스트 기능 제공
-    """
+# SSE 연결 관리자 (Server-Sent Events)
+class SSEManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
-    
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-        print(f"✅ 새 연결: 총 {len(self.active_connections)}명 접속 중")
-    
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-        print(f"❌ 연결 종료: 총 {len(self.active_connections)}명 접속 중")
-    
-    async def broadcast(self, message: dict):
-        """모든 연결된 클라이언트에게 메시지 전송"""
-        disconnected = []
-        for connection in self.active_connections:
-            try:
-                await connection.send_json(message)
-            except Exception:
-                disconnected.append(connection)
-        
-        # 연결이 끊긴 클라이언트 제거
-        for conn in disconnected:
-            self.active_connections.remove(conn)
+        self.clients: List[asyncio.Queue] = []
 
-manager = ConnectionManager()
+    async def connect(self) -> asyncio.Queue:
+        queue: asyncio.Queue = asyncio.Queue()
+        self.clients.append(queue)
+        print(f"✅ SSE 연결: 총 {len(self.clients)}명 접속 중")
+        return queue
+
+    def disconnect(self, queue: asyncio.Queue):
+        if queue in self.clients:
+            self.clients.remove(queue)
+        print(f"❌ SSE 연결 종료: 총 {len(self.clients)}명 접속 중")
+
+    async def broadcast(self, message: dict):
+        disconnected = []
+        for queue in self.clients:
+            try:
+                await queue.put(message)
+            except Exception:
+                disconnected.append(queue)
+        for q in disconnected:
+            self.disconnect(q)
+
+manager = SSEManager()
 
 # 이벤트 설정 저장
 event_settings = {
@@ -957,31 +952,33 @@ async def end_gambling(db: Session = Depends(get_db)):
 # WebSocket 엔드포인트
 # ============================================
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    """
-    실시간 통신용 WebSocket 엔드포인트
-    클라이언트는 이 엔드포인트로 연결하여 실시간 업데이트를 받습니다
-    """
-    await manager.connect(websocket)
-    try:
-        while True:
-            # 클라이언트로부터 메시지 수신
-            data = await websocket.receive_text()
-            message = json.loads(data)
-            
-            # 메시지를 모든 클라이언트에게 브로드캐스트
-            await manager.broadcast({
-                "type": "message",
-                "data": message,
-                "timestamp": datetime.now().isoformat()
-            })
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast({
-            "type": "user_left",
-            "connections": len(manager.active_connections)
-        })
+@app.get("/api/events")
+async def sse_events(request: Request):
+    """SSE 엔드포인트: 서버 → 클라이언트 실시간 이벤트 스트림"""
+    queue = await manager.connect()
+
+    async def event_stream():
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    message = await asyncio.wait_for(queue.get(), timeout=25.0)
+                    yield f"data: {json.dumps(message, ensure_ascii=False)}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": keepalive\n\n"  # Render 프록시 타임아웃 방지
+        finally:
+            manager.disconnect(queue)
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # nginx/Render 프록시 버퍼링 방지
+        }
+    )
 
 # React 빌드 정적 파일 서빙 (프로덕션 환경에서 Dockerfile이 /app/static에 빌드 결과물 복사)
 STATIC_DIR = "static"

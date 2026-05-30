@@ -180,45 +180,37 @@ export const auctionAPI = {
     },
 };
 
-// WebSocket 연결 함수
+// SSE 연결 함수 (Server-Sent Events, WebSocket 대체)
 export const connectWebSocket = (
     onMessage: (message: any) => void,
     onError?: (error: Event) => void
-): WebSocket => {
-    // WebSocket URL
-    // - REACT_APP_API_URL 설정 시: Render URL을 wss://로 변환
-    // - 미설정 + non-localhost: Railway (같은 호스트)
-    // - localhost: 로컬 개발
-    const backendUrl = (process.env.REACT_APP_API_URL || '').replace(/\/$/, ''); // 끝 슬래시 제거
-    const wsUrl = backendUrl
-        ? backendUrl.replace('https://', 'wss://').replace('http://', 'ws://') + '/ws'
+): EventSource => {
+    const backendUrl = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+    const sseUrl = backendUrl
+        ? `${backendUrl}/api/events`
         : window.location.hostname !== 'localhost'
-            ? `wss://${window.location.hostname}/ws`
-            : 'ws://localhost:8000/ws';
+            ? '/api/events'
+            : 'http://localhost:8000/api/events';
 
-    console.log('🔌 WebSocket URL:', wsUrl);
+    console.log('📡 SSE URL:', sseUrl);
 
-    const ws = new WebSocket(wsUrl);
+    const es = new EventSource(sseUrl);
 
-    ws.onopen = () => {
-        console.log('✅ WebSocket 연결됨');
+    es.onopen = () => {
+        console.log('✅ SSE 연결됨');
     };
 
-    ws.onmessage = (event) => {
+    es.onmessage = (event) => {
         const message = JSON.parse(event.data);
         onMessage(message);
     };
 
-    ws.onerror = (error) => {
-        console.error('❌ WebSocket 에러:', error);
+    es.onerror = (error) => {
+        console.error('❌ SSE 에러 (자동 재연결 시도):', error);
         if (onError) onError(error);
     };
 
-    ws.onclose = () => {
-        console.log('🔌 WebSocket 연결 종료');
-    };
-
-    return ws;
+    return es;
 };
 
 export default api;
