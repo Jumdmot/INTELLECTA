@@ -505,7 +505,7 @@ async def update_event_settings(settings: dict):
     return {"success": True, "settings": event_settings}
 
 @app.post("/api/admin/event/bonus-coins")
-async def give_bonus_coins(data: dict, db: Session = Depends(get_db)):
+async def give_bonus_coins(db: Session = Depends(get_db)):
     """모든 팀에게 보너스 코인 지급 (관리자용)"""
     bonus_amount = event_settings["bonus_coins"]
     
@@ -576,7 +576,7 @@ async def random_team_bonus(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"랜덤 보너스 실패: {str(e)}")
 
 @app.post("/api/admin/event/steal-coins")
-async def steal_coins_event(data: dict, db: Session = Depends(get_db)):
+async def steal_coins_event(db: Session = Depends(get_db)):
     """상위 팀 코인 일부를 하위 팀에게 분배"""
     try:
         teams = db.query(Team).order_by(Team.coins.desc()).all()
