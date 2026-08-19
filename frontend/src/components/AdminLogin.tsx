@@ -76,10 +76,6 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                         {loading ? '로그인 중...' : '로그인'}
                     </button>
                 </form>
-
-                <div className="login-hint">
-                    <p>💡 힌트: 아이디는 admin, 비밀번호는 admin2024!</p>
-                </div>
             </div>
         </div>
     );
