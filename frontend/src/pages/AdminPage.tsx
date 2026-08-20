@@ -22,6 +22,14 @@ const AdminPage: React.FC<AdminPageProps> = ({ onBack, onStartAuctionMode, onOpe
     });
     const [createMessage, setCreateMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
+    // 키워드 수정 상태 (편집 중인 키워드 id, null이면 편집 중 아님)
+    const [editingKeywordId, setEditingKeywordId] = useState<number | null>(null);
+    const [editKeywordForm, setEditKeywordForm] = useState({
+        name: '',
+        category: '물리',
+        min_bid: 10
+    });
+
     // 메시지 전송 모달
     const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
     const [broadcastMessage, setBroadcastMessage] = useState('');
@@ -36,7 +44,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ onBack, onStartAuctionMode, onOpe
         const ws = connectWebSocket((msg) => {
             console.log('📨 관리자 WebSocket:', msg);
 
-            if (msg.type === 'new_bid' || msg.type === 'keyword_created') {
+            if (msg.type === 'new_bid' || msg.type === 'keyword_created' || msg.type === 'keyword_updated') {
                 loadAllData(); // 데이터 새로고침
             }
         });
@@ -94,6 +102,41 @@ const AdminPage: React.FC<AdminPageProps> = ({ onBack, onStartAuctionMode, onOpe
             setTimeout(() => setCreateMessage(null), 3000);
         } catch (err) {
             setCreateMessage({ type: 'error', text: '키워드 복구에 실패했습니다.' });
+        }
+    };
+
+    // 키워드 수정 시작: 해당 카드를 편집 모드로 전환하고 현재 값으로 폼 채우기
+    const handleStartEditKeyword = (kw: Keyword) => {
+        setEditingKeywordId(kw.id);
+        setEditKeywordForm({
+            name: kw.name,
+            category: kw.category,
+            min_bid: kw.min_bid
+        });
+    };
+
+    const handleCancelEditKeyword = () => {
+        setEditingKeywordId(null);
+    };
+
+    // 키워드 수정 저장
+    const handleSaveEditKeyword = async (keywordId: number) => {
+        try {
+            await api.put(`/api/keywords/${keywordId}`, {
+                name: editKeywordForm.name,
+                category: editKeywordForm.category,
+                min_bid: editKeywordForm.min_bid
+            });
+
+            setCreateMessage({ type: 'success', text: '키워드가 수정되었습니다.' });
+            setEditingKeywordId(null);
+            loadAllData();
+            setTimeout(() => setCreateMessage(null), 3000);
+        } catch (err: any) {
+            setCreateMessage({
+                type: 'error',
+                text: err.response?.data?.detail || '키워드 수정에 실패했습니다.'
+            });
         }
     };
 
@@ -237,6 +280,110 @@ const AdminPage: React.FC<AdminPageProps> = ({ onBack, onStartAuctionMode, onOpe
 
     const soldKeywords = keywords.filter(k => k.sold);
     const availableKeywords = keywords.filter(k => !k.sold);
+
+    // 키워드 카드 렌더링 (판매 가능 / 판매 완료 공용) - 편집 모드 지원
+    const renderKeywordCard = (kw: Keyword, variant: 'available' | 'sold') => {
+        const isEditing = editingKeywordId === kw.id;
+        const owner = variant === 'sold' ? teams.find(t => t.id === kw.owner_team_id) : undefined;
+
+        if (isEditing) {
+            return (
+                <div key={kw.id} className={`keyword-card ${variant} keyword-card-editing`}>
+                    <div className="keyword-edit-form">
+                        <input
+                            type="text"
+                            value={editKeywordForm.name}
+                            onChange={(e) => setEditKeywordForm({ ...editKeywordForm, name: e.target.value })}
+                            placeholder="키워드 이름"
+                            className="keyword-edit-input"
+                        />
+                        <select
+                            value={editKeywordForm.category}
+                            onChange={(e) => setEditKeywordForm({ ...editKeywordForm, category: e.target.value })}
+                            className="keyword-edit-select"
+                        >
+                            <option value="물리">물리</option>
+                            <option value="화학">화학</option>
+                            <option value="생명">생명</option>
+                            <option value="수학">수학</option>
+                            <option value="인문">인문</option>
+                        </select>
+                        <input
+                            type="number"
+                            value={editKeywordForm.min_bid}
+                            onChange={(e) => setEditKeywordForm({ ...editKeywordForm, min_bid: parseInt(e.target.value) || 0 })}
+                            min="1"
+                            className="keyword-edit-input keyword-edit-input-number"
+                        />
+                        <div className="keyword-edit-actions">
+                            <button
+                                className="btn-save-keyword"
+                                onClick={() => handleSaveEditKeyword(kw.id)}
+                                title="저장"
+                            >
+                                ✅ 저장
+                            </button>
+                            <button
+                                className="btn-cancel-keyword"
+                                onClick={handleCancelEditKeyword}
+                                title="취소"
+                            >
+                                ❌ 취소
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div key={kw.id} className={`keyword-card ${variant}`}>
+                <span
+                    className="keyword-badge"
+                    style={{ backgroundColor: getCategoryColor(kw.category) }}
+                >
+                    {kw.category}
+                </span>
+                <div className="keyword-details">
+                    <div className="keyword-name">{kw.name}</div>
+                    {variant === 'available' ? (
+                        <div className="keyword-price">최소 {kw.min_bid}코인</div>
+                    ) : (
+                        <div className="keyword-owner">
+                            소유: {owner?.name || '알 수 없음'}
+                        </div>
+                    )}
+                </div>
+                <div className="keyword-card-actions">
+                    <button
+                        className="btn-edit-keyword"
+                        onClick={() => handleStartEditKeyword(kw)}
+                        title="수정"
+                    >
+                        ✏️
+                    </button>
+                    {variant === 'sold' && (
+                        <button
+                            className="btn-restore-keyword"
+                            onClick={() => handleRestoreKeyword(kw.id)}
+                            title="복구"
+                        >
+                            ↩️
+                        </button>
+                    )}
+                    {variant === 'available' && (
+                        <button
+                            className="btn-delete-keyword"
+                            onClick={() => handleDeleteKeyword(kw.id)}
+                            title="삭제"
+                        >
+                            🗑️
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="admin-page">
@@ -479,56 +626,23 @@ const AdminPage: React.FC<AdminPageProps> = ({ onBack, onStartAuctionMode, onOpe
                 {/* 키워드 관리 탭 */}
                 {activeTab === 'keywords' && (
                     <div className="keywords-section">
+                        {createMessage && (
+                            <div className={`message ${createMessage.type}`}>
+                                {createMessage.text}
+                            </div>
+                        )}
                         <div className="keywords-columns">
                             <div className="keywords-column">
                                 <h3>📦 판매 가능 ({availableKeywords.length}개)</h3>
                                 <div className="keyword-list">
-                                    {availableKeywords.map(kw => (
-                                        <div key={kw.id} className="keyword-card available">
-                                            <span
-                                                className="keyword-badge"
-                                                style={{ backgroundColor: getCategoryColor(kw.category) }}
-                                            >
-                                                {kw.category}
-                                            </span>
-                                            <div className="keyword-details">
-                                                <div className="keyword-name">{kw.name}</div>
-                                                <div className="keyword-price">최소 {kw.min_bid}코인</div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                    {availableKeywords.map(kw => renderKeywordCard(kw, 'available'))}
                                 </div>
                             </div>
 
                             <div className="keywords-column">
                                 <h3>✅ 판매 완료 ({soldKeywords.length}개)</h3>
                                 <div className="keyword-list">
-                                    {soldKeywords.map(kw => {
-                                        const owner = teams.find(t => t.id === kw.owner_team_id);
-                                        return (
-                                            <div key={kw.id} className="keyword-card sold">
-                                                <span
-                                                    className="keyword-badge"
-                                                    style={{ backgroundColor: getCategoryColor(kw.category) }}
-                                                >
-                                                    {kw.category}
-                                                </span>
-                                                <div className="keyword-details">
-                                                    <div className="keyword-name">{kw.name}</div>
-                                                    <div className="keyword-owner">
-                                                        소유: {owner?.name || '알 수 없음'}
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    className="btn-restore-keyword"
-                                                    onClick={() => handleRestoreKeyword(kw.id)}
-                                                    title="복구"
-                                                >
-                                                    ↩️
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
+                                    {soldKeywords.map(kw => renderKeywordCard(kw, 'sold'))}
                                 </div>
                             </div>
                         </div>
