@@ -368,6 +368,46 @@ async def create_keyword(keyword_data: dict, db: Session = Depends(get_db)):
     
     return {"success": True, "keyword_id": keyword.id}
 
+@app.put("/api/keywords/{keyword_id}")
+async def update_keyword(keyword_id: int, keyword_data: dict, db: Session = Depends(get_db)):
+    """키워드 정보 수정 (관리자용)"""
+    keyword = db.query(Keyword).filter(Keyword.id == keyword_id).first()
+    if not keyword:
+        raise HTTPException(status_code=404, detail="키워드를 찾을 수 없습니다")
+
+    # name 변경 시 중복 체크 (unique 제약)
+    if "name" in keyword_data and keyword_data["name"] != keyword.name:
+        conflict = db.query(Keyword).filter(
+            Keyword.name == keyword_data["name"],
+            Keyword.id != keyword_id
+        ).first()
+        if conflict:
+            raise HTTPException(status_code=400, detail="이미 존재하는 키워드명입니다")
+        keyword.name = keyword_data["name"]
+
+    if "category" in keyword_data:
+        keyword.category = keyword_data["category"]
+    if "min_bid" in keyword_data:
+        keyword.min_bid = keyword_data["min_bid"]
+
+    db.commit()
+    db.refresh(keyword)
+
+    # 실시간 클라이언트 반영
+    await manager.broadcast({
+        "type": "keyword_updated",
+        "keyword": {
+            "id": keyword.id,
+            "name": keyword.name,
+            "category": keyword.category,
+            "min_bid": keyword.min_bid,
+            "sold": keyword.sold,
+            "owner_team_id": keyword.owner_team_id
+        }
+    })
+
+    return {"success": True, "message": "키워드 정보가 수정되었습니다"}
+
 @app.delete("/api/keywords/{keyword_id}")
 async def delete_keyword(keyword_id: int, db: Session = Depends(get_db)):
     """키워드 삭제 (관리자용)"""
