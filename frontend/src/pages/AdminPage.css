@@ -445,6 +445,122 @@
   transform: scale(1.05);
 }
 
+/* Keyword card action button group (edit/restore/delete) */
+.keyword-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.btn-edit-keyword {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: #fbbf24;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.btn-edit-keyword:hover {
+  background: rgba(245,158,11,0.2);
+  border-color: #f59e0b;
+  transform: scale(1.05);
+}
+
+/* Keyword inline edit mode */
+.keyword-card-editing {
+  background: rgba(245,158,11,0.05);
+  border-color: rgba(245,158,11,0.4);
+  align-items: stretch;
+}
+
+.keyword-edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.keyword-edit-input,
+.keyword-edit-select {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  color: #f1f5f9;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.keyword-edit-input:focus,
+.keyword-edit-select:focus {
+  outline: none;
+  border-color: rgba(245,158,11,0.5);
+  background: rgba(255,255,255,0.09);
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+}
+
+.keyword-edit-input {
+  flex: 1 1 140px;
+  min-width: 100px;
+}
+
+.keyword-edit-input-number {
+  flex: 0 1 90px;
+  min-width: 70px;
+}
+
+.keyword-edit-select {
+  flex: 0 1 100px;
+}
+
+.keyword-edit-select option { background: #0d1427; color: #f1f5f9; }
+
+.keyword-edit-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.btn-save-keyword,
+.btn-cancel-keyword {
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-save-keyword {
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.4);
+  color: #6ee7b7;
+}
+
+.btn-save-keyword:hover {
+  background: rgba(16,185,129,0.22);
+  border-color: #10b981;
+  transform: translateY(-1px);
+}
+
+.btn-cancel-keyword {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.35);
+  color: #fca5a5;
+}
+
+.btn-cancel-keyword:hover {
+  background: rgba(239,68,68,0.2);
+  transform: translateY(-1px);
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;
